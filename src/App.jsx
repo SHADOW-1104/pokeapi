@@ -1,9 +1,10 @@
 import { useState } from "react"
+import './styles/styles.css'
 
 export const App = () => {
   const baseUrl = 'https://pokeapi.co/api/v2/pokemon'
   const [busqueda, setBusqueda] = useState('')
-  const [pokeData, setPokeData] = useState([])
+  const [pokeData, setPokeData] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const searchInput = document.getElementById('search-input')
 
@@ -12,7 +13,9 @@ export const App = () => {
     if(busqueda.length > 0){
       fetchPokemon()
       
-    }else {
+    }else if (isModalOpen) {
+      closeModal()
+    }else{
       alert("Indica el nombre de algun pokemon")
     }
     clearInput()
@@ -32,7 +35,7 @@ export const App = () => {
     try {
       const response = await fetch(`${baseUrl}/${busqueda}`)
       if(!response.ok){
-        throw new error('El servidor no responde!')
+        throw new Error('El servidor no responde!')
       }
       const data = await response.json()
       setPokeData(data)
@@ -63,40 +66,17 @@ export const App = () => {
       </form>
 
       {isModalOpen && pokeData && (
-        <div style={modalStyles.overlay}>
-          <div style={modalStyles.content}>
+        <div className="modal-overlay">
+          <div className="modal-content">
             <h2>{pokeData.name}</h2>
             <img src={pokeData.sprites.front_default} alt={pokeData.name} />
             <p>Altura: {pokeData.height}</p>
-            <p>Peso: {pokeData.weight}</p>
+            <p>Peso: {pokeData.weight/10} kg</p>
+            <p>Tipo: {pokeData.types[0].type.name}</p>
             <button onClick={closeModal}>Cerrar</button>
           </div>
         </div>
       )}
-
-
     </>
-  )
-}
-
-const modalStyles = {
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  content: {
-    background: '#fff',
-    padding: '20px',
-    borderRadius: '8px',
-    maxWidth: '500px',
-    width: '100%',
-    textAlign: 'center',
-  },
+  );
 };
